@@ -55,3 +55,11 @@
 
 ;;; DAY 7 - PART 2
 
+(defun subcount (cont)
+  (let ((cur (gethash cont *database*)))
+    (reduce (lambda (acc x)
+	      (if (null (car x))
+		  (+ acc 0)
+		  (+ acc (car x) (* (car x) (subcount (cadr x)))))) cur :initial-value 0)))
+
+(subcount "shiny gold")
