@@ -62,3 +62,5 @@
   (let* ((input (sanitize-input path)))
     (car (remove-if #'null (loop for i below (length input)
 				 collect (terminatesp (replace-nth i input (toggle-key (nth i input)))))))))
+
+(run-2 "input.txt")
