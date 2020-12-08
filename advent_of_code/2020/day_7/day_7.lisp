@@ -1,10 +1,10 @@
+;;; DAY 7 - INPUT TRANSFORMATION
+
 (defun read-file (path)
   (with-open-file (stream path)
     (loop for line = (read-line stream nil)
 	  while line
 	  collect line)))
-
-;;; DAY 7 - PART 1
 
 (defun sanitize-input (path)
   (let* ((in (read-file path))
@@ -23,30 +23,35 @@
 	     (uiop:split-string string)))
 
 (defun create-data-structure (bag-string)
-  (let ((bag (make-instance 'bag :name (format nil "~a ~a" (car bag-string) (cadr bag-string)))))
-    (loop for (am c1 c2) on (cddr bag-string) by #'cdddr
-	  
-	  do (add-bag bag (make-instance 'bag :name (format nil "~a ~a" c1 c2) :amount am)))
-    bag))
+  (cons (list (car bag-string) (cadr bag-string)) (loop for (am c1 c2) on (cddr bag-string) by #'cdddr	  
+							collect (list am c1 c2))))
+
+(defun make-color (colortupel)
+  (if (= (length colortupel) 2)
+      (concatenate 'string (car colortupel) " " (cadr colortupel))
+      (list (parse-integer (car colortupel) :junk-allowed t) (concatenate 'string (cadr colortupel) " " (caddr colortupel)))))
 
 (defun input->datastructure (path)
-  (mapcar #'create-data-structure (sanitize-input path)))
+  (let ((bag-list (mapcar #'create-data-structure (sanitize-input path)))
+	(bag-hash-table (make-hash-table :test #'equal)))
+    (loop for bg in bag-list do
+      (let ((rep (mapcar #'make-color bg)))
+	(setf (gethash (car rep) bag-hash-table) (cdr rep))))
+    bag-hash-table))
 
-(defclass bag ()
-  ((name
-    :initarg :name
-    :accessor bag-name)
-   (parent
-    :initarg :parent
-    :accessor bag-parent)
-   (contains
-    :initarg :contains
-    :initform '()
-    :accessor bag-contains)
-   (amount
-    :initarg :amount
-    :initform 1
-    :accessor bag-amount)))
+(defparameter *database* (input->datastructure "input.txt"))
 
-(defmethod add-bag ((big bag) (small bag))
-  (setf (bag-contains big) (cons small (bag-contains big))))
+;;; DAY 7 - PART 1
+
+(defun containsp (cont col)
+  (let ((cur (gethash cont *database*)))
+    (some (lambda (c)
+	    (or (string= (cadr c) col)
+		(containsp (cadr c) col)))
+	  cur)))
+
+(defun run ()
+  (loop for k being the hash-key using (hash-value v) of *database* count (containsp k "shiny gold")))
+
+;;; DAY 7 - PART 2
+
