@@ -23,14 +23,15 @@
   (let ((x (car pos))
 	(y (cadr pos)))
     (list
-     (gethash (list (1- x) (1+ y)) world #\.)
-     (gethash (list (1- x)      y) world #\.)
-     (gethash (list (1+ x) (1+ y)) world #\.)
-     (gethash (list (1- x)      y) world #\.)
-     (gethash (list (1+ x)      y) world #\.)
-     (gethash (list     x  (1- y)) world #\.)
-     (gethash (list (1- x) (1- y)) world #\.)
-     (gethash (list (1+ x) (1- y)) world #\.))))
+     (gethash (list (1- x) (1+ y)) world #\.) ;lu
+     (gethash (list (1- x)      y) world #\.) ;l-
+     (gethash (list (1+ x) (1+ y)) world #\.) ;ru
+     (gethash (list     x  (1+ y)) world #\.) ;l-
+     (gethash (list (1+ x)      y) world #\.) ;r-
+     (gethash (list     x  (1- y)) world #\.) ;-d
+     (gethash (list (1- x) (1- y)) world #\.) ;ld
+     (gethash (list (1+ x) (1- y)) world #\.) ;rd
+     )))
 
 (defun count-occupied (pos world)
   (count #\# (get-neighbours pos world)))
@@ -68,3 +69,11 @@
     (if (hash-table-equal fst snd)
 	(count-all-occupied trd)
 	(simulate snd))))
+
+(defun run (path)
+  (simulate (input->hash path)))
+
+(run "input.txt")
+
+;;; DAY 11 - PART 2
+
